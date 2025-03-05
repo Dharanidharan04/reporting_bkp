@@ -71,6 +71,13 @@
           <artifactId>elasticsearch-rest-high-level-client</artifactId>
           <version>7.9.3</version>
         </dependency> -->
+
+         <dependency>
+             <groupId>com.fasterxml.jackson.core</groupId>
+             <artifactId>jackson-databind</artifactId>
+             <version>2.16.0</version> <!-- Use the latest version -->
+         </dependency>
+
     </dependencies>
 
     <build>
