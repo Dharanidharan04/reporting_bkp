@@ -26,6 +26,9 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -169,7 +172,15 @@ public abstract class AnonymousProfileTransform<R extends ConnectRecord<R>> impl
 
     private R applySchemaless(R record) {
         final Map<String, Object> value = Requirements.requireMap(operatingValue(record), PURPOSE);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        File file = new File("serviceType.json");
+        Map<String, Object> jsonMap = objectMapper.readValue(file, new TypeReference<Map<String, Object>>() {});
+        List<Map<String, String>> fieldValList = (List<Map<String, String>>) jsonMap.get("fieldVal");
         // final Map<String, Object> key = Requirements.requireMap(record.key(), PURPOSE);
+        Map<String, String> fieldValueMap = new HashMap<>();
+        Map<String, String> fieldValueMap = fieldValList.stream().collect(Collectors.toMap(entry -> entry.get("code"), entry -> entry.get("value")));
+
 
         Map<String, Object> updatedValueRoot = new HashMap<>(value);
         // Map<String, Object> updatedKeyRoot = new HashMap<>(key);
@@ -180,9 +191,15 @@ public abstract class AnonymousProfileTransform<R extends ConnectRecord<R>> impl
             try{
                 for(int j=0; j<profHierar.length ; j++){
                     updatedValue = (Map<String, Object>)updatedValue.get(profHierar[j]);
-                    if (updatedValue != null && "CBBI".equals(updatedValue.get("serviceType"))){
-                        updatedValue.put("serviceType", "By Birth /Descent");
-                    }
+                    // if (updatedValue != null && "CBBI".equals(updatedValue.get("serviceType"))){
+                    //     updatedValue.put("serviceType", "By Birth /Descent");
+                    // }
+                     if (updatedValue != null) {
+                     String serviceType = (String) updatedValue.get("serviceType");
+                     if (serviceType != null && fieldValueMap.containsKey(serviceType)) {
+                     updatedValue.put("serviceType", fieldValueMap.get(serviceType));
+                     }
+                }
                 }
             }
             catch(Exception e){
