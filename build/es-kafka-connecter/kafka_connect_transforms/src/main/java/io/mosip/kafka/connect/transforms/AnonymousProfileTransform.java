@@ -28,6 +28,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 
 import org.json.JSONObject;
 import org.json.JSONException;
